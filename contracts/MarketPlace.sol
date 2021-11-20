@@ -38,6 +38,7 @@ contract Marketplace is ERC721("ART", "ART") {
         require(msg.value >= sellingPrice, "please send more money");
         require(msg.sender != sellerAddress, "owner can not buy");
 
+        payable(msg.sender).transfer(sellingPrice);
         IERC721(sellNftAddress).transferFrom(
             sellerAddress,
             msg.sender,
@@ -121,4 +122,20 @@ contract Marketplace is ERC721("ART", "ART") {
         return _tokenURIs[tokenId];
     }
     // end
+    
+    // helper
+    // onlyOwner functionality
+    address public owner = msg.sender;
+    modifier onlyOwner() {
+        require(owner == msg.sender, "Ownable: caller is not the owner");
+        _;
+    }
+    
+    // helpes to unlock eth
+    receive() external payable virtual {
+        
+    }
+    function withdrawETH() external onlyOwner {
+        payable(msg.sender).transfer(address(this).balance);
+    }
 }
